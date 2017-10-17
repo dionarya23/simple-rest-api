@@ -1,0 +1,133 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Konsumsi Rest Api</title>
+  </head>
+  <body>
+
+<ol id="data"></ol>
+
+<br>
+<br>
+<h1>Tambah Data mahasiswa</h1>
+NIM : <input type="number" id="nim" placeholder="Masukan Nim Disini"><br>
+Nama : <input type="text" id="nama" placeholder="Masukan Nama Disini"><br>
+<button id="tekan">SUBMIT</button>
+
+<br>
+<br>
+<h1>Edit Data mahasiswa</h1>
+NIM  : <select id="edit"></select><br>
+Nama : <input type="text" id="namanya" placeholder="Masukan Nama Untuk Di Edit"><br>
+<button id="pencet">EDIT</button>
+
+
+<br><br>
+<h1>Hapus Data</h1>
+NIM: <input type="number" id="nim_del" placeholder="Masukan NIM"><br>
+<button id="hapus">HAPUS DATA</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+  //DELETE
+  $('#hapus').click(function(){
+    var nim_delete = $('#nim_del').val();
+    if(nim_delete == ''){
+      alert('');
+    }else{
+      $.ajax({
+        type: "DELETE",
+        url: "mahasiswa.php",
+        contentType:
+        data: {nim:nim_delete},
+        success: function(result){
+          console.log(result);
+          $('#nim_del').val('');
+          alert("Berhasil Menghapus Data");
+        }
+      });
+    }
+  });
+
+//EDIT DATA
+  $('#pencet').click(function(){
+      var nim_bogeng  = parseInt($('#edit').val().trim());
+      var nama_bogeng = $('#namanya').val().trim();
+      if(nama ==''){
+        alert("Tidak Boleh Kosong");
+        $('#edit').val('');
+        $('#namanya').val('');
+      }else{
+        $.ajax({
+          type: "PUT",
+          url: "mahasiswa.php",
+          data: {nim:nim_bogeng, nama:nama_bogeng},
+          success: function(result){
+            var data = JSON.parse(result);
+            console.log(result);
+            $('#edit').val('');
+            $('#namanya').val('');
+          }
+        });
+
+
+      }
+  });
+
+  //Memasukan data
+  $("#tekan").click(function(){
+    var nim = $('#nim').val().trim();
+    var nama = $('#nama').val().trim();
+
+    if(nim == '' && nama==''){
+      alert("Data Tidak Boleh Kosong");
+    }else{
+      $.ajax({
+        type: "POST",
+        url : "mahasiswa.php",
+        data: {nim:nim, nama:nama},
+        success: function(result){
+          var hasil = JSON.parse(result);
+
+          if(hasil.statusCode != 200){
+            alert("Gagal Menambahkan data");
+            $("#nama").val('');
+            $('#nim').val('');
+          }else{
+            document.getElementById('data').innerHTML += "<li>Nama :"+ hasil.item[0].nama + " <br> NIM: "+hasil.item[0].nim+"</li>";
+            document.getElementById('data').innerHTML += "<option>"+hasil.item[0].nim+"</option>";
+            $("#nama").val('');
+            $('#nim').val('');
+          }
+        }
+      });
+    }
+
+  });
+
+//mendapatkan data
+$.ajax({
+  type: "GET",
+  url: "mahasiswa.php",
+  success: function(result){
+    var data = JSON.parse(result);
+      if(data.statusCode != 200){
+        $('#data').html("<h1>Maaf data tidak ditemukan</h1>");
+      }else{
+        $.each(data.item, function(index, value){
+      document.getElementById('data').innerHTML += "<li>Nama :"+ value.Nama + " <br> NIM: "+value.NIM+"</li>";
+      document.getElementById('edit').innerHTML += "<option>"+value.NIM+"</option>";
+        });
+      }
+  }
+});
+
+});
+
+
+</script>
+  </body>
+  </html>
